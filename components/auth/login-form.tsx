@@ -47,6 +47,7 @@ export default function LoginForm() {
       
       // Navegar directamente sin delays
       router.push('/admin/dashboard');
+      return;
     } catch (err) {
       console.error('[v0] Error en login:', err);
       setError('Error al conectar con el servidor');
