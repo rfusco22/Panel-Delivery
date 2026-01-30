@@ -46,8 +46,9 @@ export default function LoginForm() {
 
       console.log('[v0] Login exitoso, redirigiendo a dashboard');
       
-      // Navegar directamente sin delays
-      router.push('/admin/dashboard');
+      // Esperar a que router.push se complete
+      await router.push('/admin/dashboard');
+      console.log('[v0] Navegación completada');
       return;
     } catch (err) {
       console.error('[v0] Error en login:', err);
