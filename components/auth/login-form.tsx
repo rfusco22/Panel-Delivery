@@ -30,6 +30,7 @@ export default function LoginForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include', // Enviar cookies con la solicitud
       });
 
       console.log('[v0] Respuesta del servidor:', response.status);

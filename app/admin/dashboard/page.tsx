@@ -24,18 +24,24 @@ function DashboardPage() {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const response = await fetch('/api/auth/session');
+        console.log('[v0] Fetching session...');
+        const response = await fetch('/api/auth/session', {
+          credentials: 'include', // Asegurar que las cookies se envíen
+        });
+        console.log('[v0] Session response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('[v0] Session data received:', data);
           setSession(data);
+          setLoading(false);
         } else {
+          console.log('[v0] Session validation failed, redirecting to login');
           router.push('/login');
         }
       } catch (error) {
         console.error('[v0] Session fetch error:', error);
         router.push('/login');
-      } finally {
-        setLoading(false);
       }
     };
 
