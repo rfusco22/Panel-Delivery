@@ -56,11 +56,14 @@ export async function POST(req: NextRequest) {
     await session.save();
 
     console.log('[v0] Sesión guardada para:', email);
+    console.log('[v0] Session object:', session);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: 'Sesión iniciada correctamente',
     });
+
+    return response;
   } catch (error) {
     console.error('[v0] Login error:', error);
     return NextResponse.json(
