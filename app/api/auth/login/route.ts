@@ -47,8 +47,14 @@ export async function POST(req: NextRequest) {
 
     console.log('[v0] Credenciales válidas para:', email);
 
-    // Crear sesión
-    const session = await getIronSession(req.cookies, sessionOptions);
+    // Crear respuesta primero
+    const response = NextResponse.json({
+      success: true,
+      message: 'Sesión iniciada correctamente',
+    });
+
+    // Crear sesión con response.cookies para que las cookies se guarden en la respuesta
+    const session = await getIronSession(req.cookies, response.cookies, sessionOptions);
     session.userId = String(user.id);
     session.userName = user.full_name;
     session.userRole = user.role;
@@ -56,12 +62,6 @@ export async function POST(req: NextRequest) {
     await session.save();
 
     console.log('[v0] Sesión guardada para:', email);
-    console.log('[v0] Session object:', session);
-
-    const response = NextResponse.json({
-      success: true,
-      message: 'Sesión iniciada correctamente',
-    });
 
     return response;
   } catch (error) {

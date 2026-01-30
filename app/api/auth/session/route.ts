@@ -4,7 +4,8 @@ import { sessionOptions } from '@/lib/session';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getIronSession(req.cookies, sessionOptions);
+    const response = NextResponse.json({});
+    const session = await getIronSession(req.cookies, response.cookies, sessionOptions);
 
     if (!session.isLoggedIn) {
       return NextResponse.json(
