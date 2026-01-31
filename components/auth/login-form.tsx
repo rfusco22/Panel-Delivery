@@ -36,6 +36,8 @@ export default function LoginForm() {
       console.log('[v0] Respuesta del servidor:', response.status);
       const data = await response.json();
       console.log('[v0] Datos de respuesta:', data);
+      console.log('[v0] Response headers:', Array.from(response.headers.entries()));
+      console.log('[v0] Documento cookies después del login:', document.cookie);
 
       if (!response.ok) {
         console.log('[v0] Login fallido:', data.message);

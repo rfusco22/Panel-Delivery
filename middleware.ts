@@ -5,17 +5,20 @@ export function middleware(request: NextRequest) {
   // Rutas protegidas que requieren autenticación
   if (request.nextUrl.pathname.startsWith('/admin')) {
     const sessionId = request.cookies.get('session-id')?.value;
+    const allCookies = request.cookies.getAll();
 
     console.log('[v0] Middleware - Checking auth for:', request.nextUrl.pathname);
-    console.log('[v0] Middleware - SessionId exists:', !!sessionId);
-    console.log('[v0] Middleware - Request cookies:', Array.from(request.cookies.getSetCookie ? [request.cookies.getSetCookie()] : []));
+    console.log('[v0] Middleware - All cookies:', allCookies.map(c => c.name).join(', '));
+    console.log('[v0] Middleware - SessionId from cookie:', sessionId);
 
     if (!sessionId) {
-      console.log('[v0] Middleware - No session, redirecting to login');
+      console.log('[v0] Middleware - No session ID found in cookies, redirecting to login');
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
     const session = getSession(sessionId);
+    console.log('[v0] Middleware - Session lookup result:', session ? 'Found' : 'Not found');
+    
     if (!session) {
       console.log('[v0] Middleware - Invalid/expired session, redirecting to login');
       return NextResponse.redirect(new URL('/login', request.url));

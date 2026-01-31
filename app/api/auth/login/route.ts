@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: 'Sesión iniciada correctamente',
+      sessionId: sessionId // Devolver sessionId también
     });
 
     // Establecer cookie con el ID de sesión
@@ -70,7 +71,8 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    console.log('[v0] Cookie session-id establecida para:', email);
+    console.log('[v0] Cookie session-id establecida:', sessionId);
+    console.log('[v0] Respuesta headers Set-Cookie:', response.headers.getSetCookie());
 
     return response;
   } catch (error) {
