@@ -44,7 +44,7 @@ export default function LoginForm() {
         return;
       }
 
-      console.log('[v0] Login exitoso, redirigiendo a admin');
+      console.log('[v0] Login exitoso, redirigiendo a dashboard');
       
       // Resetear loading antes de navegar
       setLoading(false);
@@ -53,7 +53,7 @@ export default function LoginForm() {
       await new Promise(resolve => setTimeout(resolve, 100));
       
       // Esperar a que router.push se complete
-      await router.push('/admin');
+      await router.push('/admin/dashboard');
       console.log('[v0] Navegación completada');
     } catch (err) {
       console.error('[v0] Error en login:', err);
