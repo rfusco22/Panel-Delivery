@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIronSession } from 'iron-session';
-import { sessionOptions } from '@/lib/session';
 import { verifyPassword } from '@/lib/auth';
 import { query } from '@/lib/db';
+import { createSessionToken } from '@/lib/jwt';
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,31 +46,31 @@ export async function POST(req: NextRequest) {
 
     console.log('[v0] Credenciales válidas para:', email);
 
-    // Crear respuesta primero
+    // Crear token JWT
+    const token = createSessionToken({
+      userId: String(user.id),
+      userName: user.full_name,
+      userRole: user.role,
+    });
+
+    console.log('[v0] Token creado para:', email);
+
+    // Crear respuesta
     const response = NextResponse.json({
       success: true,
       message: 'Sesión iniciada correctamente',
     });
 
-    // Crear sesión con response.cookies para que las cookies se guarden en la respuesta
-    console.log('[v0] Inicializando sesión...');
-    const session = await getIronSession(req.cookies, response.cookies, sessionOptions);
-    console.log('[v0] Sesión inicializada:', { isLoggedIn: session.isLoggedIn });
-    
-    session.userId = String(user.id);
-    session.userName = user.full_name;
-    session.userRole = user.role;
-    session.isLoggedIn = true;
-    
-    console.log('[v0] Sesión configurada antes de save:', {
-      isLoggedIn: session.isLoggedIn,
-      userId: session.userId,
+    // Establecer cookie con el token
+    response.cookies.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60, // 24 horas
+      path: '/',
     });
-    
-    await session.save();
 
-    console.log('[v0] Sesión guardada para:', email);
-    console.log('[v0] Response headers:', response.headers.getSetCookie?.());
+    console.log('[v0] Cookie establecida para:', email);
 
     return response;
   } catch (error) {

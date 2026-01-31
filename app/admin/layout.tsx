@@ -1,8 +1,7 @@
 import React from "react"
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { getIronSession } from 'iron-session';
-import { sessionOptions } from '@/lib/session';
+import { verifySessionToken } from '@/lib/jwt';
 import { cookies as getCookies } from 'next/headers';
 
 export const metadata: Metadata = {
@@ -16,23 +15,23 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   // Validar sesión en el servidor
-  try {
-    const cookieStore = await getCookies();
-    const session = await getIronSession(cookieStore, sessionOptions);
+  const cookieStore = await getCookies();
+  const token = cookieStore.get('auth-token')?.value;
 
-    console.log('[v0] Admin layout - Session validation:', {
-      isLoggedIn: session.isLoggedIn,
-      userId: session.userId,
-    });
+  console.log('[v0] Admin layout - Token exists:', !!token);
 
-    if (!session.isLoggedIn) {
-      console.log('[v0] Admin layout - No session, redirecting to login');
-      redirect('/login');
-    }
-  } catch (error) {
-    console.error('[v0] Admin layout - Session validation error:', error);
+  if (!token) {
+    console.log('[v0] Admin layout - No token, redirecting to login');
     redirect('/login');
   }
+
+  const payload = verifySessionToken(token);
+  if (!payload) {
+    console.log('[v0] Admin layout - Invalid token, redirecting to login');
+    redirect('/login');
+  }
+
+  console.log('[v0] Admin layout - Valid session for user:', payload.userId);
 
   return (
     <div className="flex h-screen bg-slate-50">

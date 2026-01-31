@@ -1,23 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIronSession } from 'iron-session';
-import { sessionOptions } from '@/lib/session';
+import { verifySessionToken } from '@/lib/jwt';
 
 export async function GET(req: NextRequest) {
   try {
-    const response = NextResponse.json({});
-    const session = await getIronSession(req.cookies, response.cookies, sessionOptions);
+    const token = req.cookies.get('auth-token')?.value;
 
-    if (!session.isLoggedIn) {
+    if (!token) {
       return NextResponse.json(
         { message: 'No autenticado' },
         { status: 401 }
       );
     }
 
+    const payload = verifySessionToken(token);
+    if (!payload) {
+      return NextResponse.json(
+        { message: 'Token inválido' },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json({
-      userId: session.userId,
-      userName: session.userName,
-      userRole: session.userRole,
+      userId: payload.userId,
+      userName: payload.userName,
+      userRole: payload.userRole,
     });
   } catch (error) {
     console.error('[v0] Session error:', error);
