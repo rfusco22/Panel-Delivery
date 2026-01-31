@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyPassword } from '@/lib/auth';
 import { query } from '@/lib/db';
-import { createSessionToken } from '@/lib/jwt';
+import { createSession } from '@/lib/sessions-memory';
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,14 +46,14 @@ export async function POST(req: NextRequest) {
 
     console.log('[v0] Credenciales válidas para:', email);
 
-    // Crear token JWT
-    const token = createSessionToken({
-      userId: String(user.id),
-      userName: user.full_name,
-      userRole: user.role,
-    });
+    // Crear sesión en memoria
+    const sessionId = createSession(
+      String(user.id),
+      user.full_name,
+      user.role
+    );
 
-    console.log('[v0] Token creado para:', email);
+    console.log('[v0] Sesión creada para:', email, 'ID:', sessionId);
 
     // Crear respuesta
     const response = NextResponse.json({
@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
       message: 'Sesión iniciada correctamente',
     });
 
-    // Establecer cookie con el token
-    response.cookies.set('auth-token', token, {
+    // Establecer cookie con el ID de sesión
+    response.cookies.set('session-id', sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    console.log('[v0] Cookie establecida para:', email);
+    console.log('[v0] Cookie session-id establecida para:', email);
 
     return response;
   } catch (error) {

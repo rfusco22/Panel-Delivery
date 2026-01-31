@@ -1,29 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifySessionToken } from '@/lib/jwt';
+import { getSession } from '@/lib/sessions-memory';
 
 export async function GET(req: NextRequest) {
   try {
-    const token = req.cookies.get('auth-token')?.value;
+    const sessionId = req.cookies.get('session-id')?.value;
 
-    if (!token) {
+    if (!sessionId) {
       return NextResponse.json(
         { message: 'No autenticado' },
         { status: 401 }
       );
     }
 
-    const payload = verifySessionToken(token);
-    if (!payload) {
+    const session = getSession(sessionId);
+    if (!session) {
       return NextResponse.json(
-        { message: 'Token inválido' },
+        { message: 'Sesión inválida o expirada' },
         { status: 401 }
       );
     }
 
     return NextResponse.json({
-      userId: payload.userId,
-      userName: payload.userName,
-      userRole: payload.userRole,
+      userId: session.userId,
+      userName: session.userName,
+      userRole: session.userRole,
     });
   } catch (error) {
     console.error('[v0] Session error:', error);
