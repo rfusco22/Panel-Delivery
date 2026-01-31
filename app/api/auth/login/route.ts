@@ -54,14 +54,24 @@ export async function POST(req: NextRequest) {
     });
 
     // Crear sesión con response.cookies para que las cookies se guarden en la respuesta
+    console.log('[v0] Inicializando sesión...');
     const session = await getIronSession(req.cookies, response.cookies, sessionOptions);
+    console.log('[v0] Sesión inicializada:', { isLoggedIn: session.isLoggedIn });
+    
     session.userId = String(user.id);
     session.userName = user.full_name;
     session.userRole = user.role;
     session.isLoggedIn = true;
+    
+    console.log('[v0] Sesión configurada antes de save:', {
+      isLoggedIn: session.isLoggedIn,
+      userId: session.userId,
+    });
+    
     await session.save();
 
     console.log('[v0] Sesión guardada para:', email);
+    console.log('[v0] Response headers:', response.headers.getSetCookie?.());
 
     return response;
   } catch (error) {
