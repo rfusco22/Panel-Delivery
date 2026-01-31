@@ -44,13 +44,16 @@ export default function LoginForm() {
         return;
       }
 
-      console.log('[v0] Login exitoso, redirigiendo a dashboard');
+      console.log('[v0] Login exitoso, redirigiendo a admin');
       
       // Resetear loading antes de navegar
       setLoading(false);
       
+      // Pequeño delay para asegurar que la cookie se establece
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Esperar a que router.push se complete
-      await router.push('/admin/dashboard');
+      await router.push('/admin');
       console.log('[v0] Navegación completada');
     } catch (err) {
       console.error('[v0] Error en login:', err);
