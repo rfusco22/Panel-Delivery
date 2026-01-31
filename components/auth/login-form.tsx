@@ -52,7 +52,23 @@ export default function LoginForm() {
       setLoading(false);
       
       // Pequeño delay para asegurar que la cookie se establece
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Verificar que la sesión se guardó correctamente
+      console.log('[v0] Verificando que la sesión se guardó...');
+      const verifyResponse = await fetch('/api/auth/verify', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      const verifyData = await verifyResponse.json();
+      console.log('[v0] Verify response:', verifyData);
+      
+      if (!verifyData.authenticated) {
+        console.error('[v0] Cookie no se guardó correctamente');
+        setError('Error: La sesión no se estableció correctamente');
+        setLoading(true);
+        return;
+      }
       
       // Esperar a que router.push se complete
       await router.push('/admin/dashboard');

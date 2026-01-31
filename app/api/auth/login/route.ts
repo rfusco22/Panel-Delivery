@@ -63,13 +63,19 @@ export async function POST(req: NextRequest) {
     });
 
     // Establecer cookie con el ID de sesión
-    response.cookies.set('session-id', sessionId, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'strict' as const,
       maxAge: 24 * 60 * 60, // 24 horas
       path: '/',
-    });
+    };
+    
+    // En desarrollo, no usar secure. En producción, sí.
+    if (process.env.NODE_ENV === 'production') {
+      (cookieOptions as any).secure = true;
+    }
+    
+    response.cookies.set('session-id', sessionId, cookieOptions);
 
     console.log('[v0] Cookie session-id establecida:', sessionId);
     console.log('[v0] Respuesta headers Set-Cookie:', response.headers.getSetCookie());
